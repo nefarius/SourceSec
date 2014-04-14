@@ -4,7 +4,7 @@
 
 #define _sourcesig_included
 
-native SourceSig_Verify(const String:publicKeyFile[], const String:hash[], const String:signatureFile);
+native SourceSig_Verify(const String:publicKeyFile[], const String:hash[], const String:signatureFile[]);
 
 native SourceSig_GetSHA256(String:output[], size, const String:file[]);
 

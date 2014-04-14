@@ -86,20 +86,50 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 
 cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 {
-	char *pubKey, *inHash, *inSig;
+	char *pubKey, *inHash, *sigFile;
+	int ret = -1;
 
 	// Public key file path
 	pContext->LocalToString(params[1], &pubKey);
 	// Input hash
 	pContext->LocalToString(params[2], &inHash);
 	// Input signature file path (encrypted)
-	pContext->LocalToString(params[3], &inSig);
+	pContext->LocalToString(params[3], &sigFile);
 
+	// Try to open supplied public key file
 	FILE *fpPubKey = fopen(pubKey, "rt");
+	if(!fpPubKey)
+		return ret;
 
+	// Set file as public key source (must be in PEM format)
 	RSA *rsa_pub = PEM_read_RSA_PUBKEY(fpPubKey, NULL, NULL, NULL);
 
-	return 0;
+	// Try to open signature file
+	FILE *fpSigFile = fopen(sigFile, "rb");
+	if(!fpSigFile)
+	{
+		fclose(fpPubKey);
+		return ret;
+	}
+
+	// Get size of signature file
+	fseek(fpSigFile, 0L, SEEK_END);
+	size_t lenSig = ftell(fpSigFile);
+	fseek(fpSigFile, 0L, SEEK_SET);
+
+	// Read content into memory
+	unsigned char *signature = (unsigned char*)malloc(lenSig);
+	fread(signature, sizeof(unsigned char), lenSig, fpSigFile);
+
+	ret = RSA_verify(NID_sha256, 
+		(const unsigned char*)inHash, strlen(inHash), 
+		(const unsigned char*)signature, lenSig, rsa_pub);
+
+	fclose(fpPubKey);
+	fclose(fpSigFile);
+	free(signature);
+
+	return ret;
 }
 
 cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
