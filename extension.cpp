@@ -36,6 +36,42 @@
  * @brief Implement extension code here.
  */
 
-SourceSig g_Sample;		/**< Global singleton for extension's main interface */
+SourceSig g_SourceSig;		/**< Global singleton for extension's main interface */
 
-SMEXT_LINK(&g_Sample);
+SMEXT_LINK(&g_SourceSig);
+
+void SourceSig::SDK_OnAllLoaded()
+{
+	g_pShareSys->AddNatives(myself, sourcesig_natives);
+}
+
+cell_t RSAUtilVerify(IPluginContext *pContext, const cell_t *params)
+{
+	char *data, *pubKey, *inFile;
+	size_t len;
+
+	// Output buffer
+	pContext->LocalToString(params[1], &data);
+	// Buffer max size
+	len = params[2];
+	// Public key file path
+	pContext->LocalToString(params[3], &pubKey);
+	// Input data file path
+	pContext->LocalToString(params[4], &inFile);
+
+
+
+	return 0;
+}
+
+cell_t DgstSHA256(IPluginContext *pContext, const cell_t *params)
+{
+	return 0;
+}
+
+const sp_nativeinfo_t sourcesig_natives[] = 
+{
+	{"SourceSig_Verify",			RSAUtilVerify},
+	{"SourceSig_GetSHA256",			DgstSHA256},
+	{NULL,							NULL},
+};

@@ -66,7 +66,7 @@ public:
 	 * @brief This is called once all known extensions have been loaded.
 	 * Note: It is is a good idea to add natives here, if any are provided.
 	 */
-	//virtual void SDK_OnAllLoaded();
+	virtual void SDK_OnAllLoaded();
 
 	/**
 	 * @brief Called when the pause state is changed.
@@ -115,5 +115,7 @@ public:
 	//virtual bool SDK_OnMetamodPauseChange(bool paused, char *error, size_t maxlength);
 #endif
 };
+
+extern const sp_nativeinfo_t sourcesig_natives[];
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
