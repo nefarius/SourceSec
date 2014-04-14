@@ -38,6 +38,9 @@
  */
 
 #include "smsdk_ext.h"
+#include <openssl/objects.h>
+#include <openssl/sha.h>
+#include <openssl/rsa.h>
 
 
 /**
@@ -116,6 +119,8 @@ public:
 #endif
 };
 
+void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65]);
+int calc_sha256(char* path, char output[65]);
 extern const sp_nativeinfo_t sourcesig_natives[];
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
