@@ -47,12 +47,11 @@ void SourceSig::SDK_OnAllLoaded()
 
 // http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
 // Calculates SHA256 of given file
-int calc_sha256(char* path, char output[65])
+int calc_sha256(char* path, unsigned char hash[SHA256_DIGEST_LENGTH])
 {
 	FILE* file = fopen(path, "rb");
 	if(!file) return -1;
 
-	unsigned char hash[SHA256_DIGEST_LENGTH];
 	SHA256_CTX sha256;
 	SHA256_Init(&sha256);
 	const int bufSize = 32768;
@@ -65,7 +64,6 @@ int calc_sha256(char* path, char output[65])
 	}
 	SHA256_Final(hash, &sha256);
 
-	sha256_hash_string(hash, output);
 	fclose(file);
 	free(buffer);
 	return 0;
@@ -86,13 +84,13 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 
 cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 {
-	char *pubKey, *inHash, *sigFile;
+	char *pubKey, *inFile, *sigFile;
 	int ret = -1;
 
 	// Public key file path
 	pContext->LocalToString(params[1], &pubKey);
 	// Input hash
-	pContext->LocalToString(params[2], &inHash);
+	pContext->LocalToString(params[2], &inFile);
 	// Input signature file path (encrypted)
 	pContext->LocalToString(params[3], &sigFile);
 
@@ -112,6 +110,10 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 		return ret;
 	}
 
+	// Calculate hash of input file
+	unsigned char hash[SHA256_DIGEST_LENGTH];
+	calc_sha256(inFile, hash);
+
 	// Get size of signature file
 	fseek(fpSigFile, 0L, SEEK_END);
 	size_t lenSig = ftell(fpSigFile);
@@ -121,10 +123,11 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	unsigned char *signature = (unsigned char*)malloc(lenSig);
 	fread(signature, sizeof(unsigned char), lenSig, fpSigFile);
 
-	ret = RSA_verify(NID_sha256, 
-		(const unsigned char*)inHash, strlen(inHash), 
+	// Verify signature integrity
+	ret = RSA_verify(NID_sha256, hash, SHA256_DIGEST_LENGTH, 
 		(const unsigned char*)signature, lenSig, rsa_pub);
 
+	// Free resources
 	fclose(fpPubKey);
 	fclose(fpSigFile);
 	free(signature);
@@ -139,11 +142,14 @@ cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 	// Get input file to calculate
 	pContext->LocalToString(params[3], &path);
 
-	char hash[65];
+	unsigned char hash[SHA256_DIGEST_LENGTH];
+	char output[65];
 	if(calc_sha256(path, hash) == -1)
 		return -1;
 
-	pContext->StringToLocalUTF8(params[1], params[2], hash, NULL);
+	sha256_hash_string(hash, output);
+
+	pContext->StringToLocalUTF8(params[1], params[2], output, NULL);
 
 	return 0;
 }
