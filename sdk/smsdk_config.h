@@ -38,12 +38,12 @@
  */
 
 /* Basic information exposed publicly */
-#define SMEXT_CONF_NAME			"SourceSig"
-#define SMEXT_CONF_DESCRIPTION	"Enables encrypted signature validation checks using OpenSSL"
+#define SMEXT_CONF_NAME			"SourceSec"
+#define SMEXT_CONF_DESCRIPTION	"Various encryption helpers using OpenSSL"
 #define SMEXT_CONF_VERSION		"0.0.1"
 #define SMEXT_CONF_AUTHOR		"Nefarius"
 #define SMEXT_CONF_URL			"http://nefarius.at/"
-#define SMEXT_CONF_LOGTAG		"SOURCESIG"
+#define SMEXT_CONF_LOGTAG		"SOURCESEC"
 #define SMEXT_CONF_LICENSE		"GPL"
 #define SMEXT_CONF_DATESTRING	__DATE__
 

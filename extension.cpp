@@ -36,11 +36,11 @@
  * @brief Implement extension code here.
  */
 
-SourceSig g_SourceSig;		/**< Global singleton for extension's main interface */
+SourceSec g_SourceSig;		/**< Global singleton for extension's main interface */
 
 SMEXT_LINK(&g_SourceSig);
 
-void SourceSig::SDK_OnAllLoaded()
+void SourceSec::SDK_OnAllLoaded()
 {
 	g_pShareSys->AddNatives(myself, sourcesig_natives);
 }
@@ -156,7 +156,7 @@ cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 
 const sp_nativeinfo_t sourcesig_natives[] = 
 {
-	{"SourceSig_Verify",			rsautl_verify},
-	{"SourceSig_GetSHA256",			dgst_sha256},
+	{"SourceSec_Verify",			rsautl_verify},
+	{"SourceSec_GetSHA256",			dgst_sha256},
 	{NULL,							NULL},
 };

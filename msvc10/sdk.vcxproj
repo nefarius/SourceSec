@@ -110,7 +110,7 @@
     <ProjectGuid>{B3E797CF-4E77-4C9D-B8A8-7589B6902206}</ProjectGuid>
     <RootNamespace>sdk</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>SourceSig</ProjectName>
+    <ProjectName>SourceSec</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Episode 1|Win32'" Label="Configuration">
@@ -443,7 +443,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release - Orange Box|Win32'">sample.ext.2.ep2</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release - Bloody Good Time|Win32'">sample.ext.2.bgt</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release - EYE|Win32'">sample.ext.2.eye</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sourcesig.ext</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sourcesec.ext</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -1156,7 +1156,7 @@
     <ClInclude Include="..\sdk\smsdk_ext.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sourcesig.inc" />
+    <None Include="sourcesec.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
