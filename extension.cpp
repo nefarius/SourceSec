@@ -36,13 +36,13 @@
  * @brief Implement extension code here.
  */
 
-SourceSec g_SourceSig;		/**< Global singleton for extension's main interface */
+SourceSec g_sourcesec;		/**< Global singleton for extension's main interface */
 
-SMEXT_LINK(&g_SourceSig);
+SMEXT_LINK(&g_sourcesec);
 
 void SourceSec::SDK_OnAllLoaded()
 {
-	g_pShareSys->AddNatives(myself, sourcesig_natives);
+	g_pShareSys->AddNatives(myself, sourcesec_natives);
 }
 
 // http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
@@ -154,7 +154,7 @@ cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 	return 0;
 }
 
-const sp_nativeinfo_t sourcesig_natives[] = 
+const sp_nativeinfo_t sourcesec_natives[] = 
 {
 	{"SourceSec_Verify",			rsautl_verify},
 	{"SourceSec_GetSHA256",			dgst_sha256},
