@@ -86,6 +86,7 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 {
 	char *pubKey, *inFile, *sigFile;
 	int ret = -1;
+	char buffer[PLATFORM_MAX_PATH];
 
 	// Public key file path
 	pContext->LocalToString(params[1], &pubKey);
@@ -95,7 +96,8 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	pContext->LocalToString(params[3], &sigFile);
 
 	// Try to open supplied public key file
-	FILE *fpPubKey = fopen(pubKey, "rt");
+	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, pubKey);
+	FILE *fpPubKey = fopen(buffer, "rt");
 	if(!fpPubKey)
 		return ret;
 
@@ -103,7 +105,8 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	RSA *rsa_pub = PEM_read_RSA_PUBKEY(fpPubKey, NULL, NULL, NULL);
 
 	// Try to open signature file
-	FILE *fpSigFile = fopen(sigFile, "rb");
+	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, sigFile);
+	FILE *fpSigFile = fopen(buffer, "rb");
 	if(!fpSigFile)
 	{
 		fclose(fpPubKey);
@@ -112,7 +115,8 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 
 	// Calculate hash of input file
 	unsigned char hash[SHA256_DIGEST_LENGTH];
-	calc_sha256(inFile, hash);
+	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, inFile);
+	calc_sha256(buffer, hash);
 
 	// Get size of signature file
 	fseek(fpSigFile, 0L, SEEK_END);
@@ -138,17 +142,22 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 {
 	char *path;
+	char buffer[PLATFORM_MAX_PATH];
 
 	// Get input file to calculate
 	pContext->LocalToString(params[3], &path);
 
 	unsigned char hash[SHA256_DIGEST_LENGTH];
 	char output[65];
-	if(calc_sha256(path, hash) == -1)
+	// Open file and calculate hash
+	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, path);
+	if(calc_sha256(buffer, hash) == -1)
 		return -1;
 
+	// Convert digest into human readable hex string
 	sha256_hash_string(hash, output);
 
+	// Set return buffer
 	pContext->StringToLocalUTF8(params[1], params[2], output, NULL);
 
 	return 0;
