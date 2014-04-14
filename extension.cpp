@@ -108,6 +108,19 @@ cell_t RSAUtilVerify(IPluginContext *pContext, const cell_t *params)
 
 cell_t DgstSHA256(IPluginContext *pContext, const cell_t *params)
 {
+	char *data;
+	char *inFile;
+
+	// Get output string
+	pContext->LocalToString(params[1], &data);
+	// Get input file to calculate
+	pContext->LocalToString(params[3], &inFile);
+
+	char hash[65];
+	calc_sha256(data, hash);
+
+	pContext->StringToLocalUTF8(params[1], params[2], hash, NULL);
+
 	return 0;
 }
 
