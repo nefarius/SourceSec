@@ -133,7 +133,15 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 
 	// Read content into memory
 	unsigned char *signature = (unsigned char*)malloc(lenSig);
-	fread(signature, sizeof(unsigned char), lenSig, fpSigFile);
+	size_t rv = fread(signature, sizeof(unsigned char), lenSig, fpSigFile);
+
+	// Check if full content was loaded
+	if(rv != lenSig)
+	{
+		fclose(fpPubKey);
+		fclose(fpSigFile);
+		return -3;
+	}
 
 	// Verify signature integrity
 	ret = RSA_verify(NID_sha256, hash, SHA256_DIGEST_LENGTH, 
