@@ -473,7 +473,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>D:\Programme\OpenSSL-Win32\include;D:\Development\C++\sourcemod-1-5-269b62b5440a\extensions\sourcesec\sdk;D:\Development\C++\sourcemod-1-5-269b62b5440a\public\sourcepawn;D:\Development\C++\sourcemod-1-5-269b62b5440a\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Programme\OpenSSL-Win32\include;..\sdk;..\..\..\public\sourcepawn;..\..\..\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SDK_EXPORTS;_CRT_SECURE_NO_DEPRECATE;SOURCEMOD_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
