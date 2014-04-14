@@ -4,7 +4,9 @@
 
 #define _sourcesig_included
 
-native SourceSig_GetSHA256(String:output[], size, const String:file[])
+native SourceSig_Verify(const String:publicKeyFile[], const String:hash[], const String:signatureFile);
+
+native SourceSig_GetSHA256(String:output[], size, const String:file[]);
 
 /**
  * Do not edit below this line!
@@ -24,5 +26,3 @@ public Extension:__ext_sourcesig =
 	required = 0,
 #endif
 };
-
-#endif

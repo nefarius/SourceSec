@@ -41,6 +41,7 @@
 #include <openssl/objects.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
+#include <openssl/pem.h>
 
 
 /**

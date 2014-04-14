@@ -45,6 +45,7 @@ void SourceSig::SDK_OnAllLoaded()
 	g_pShareSys->AddNatives(myself, sourcesig_natives);
 }
 
+// http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
 // Calculates SHA256 of given file
 int calc_sha256(char* path, char output[65])
 {
@@ -83,41 +84,34 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 	outputBuffer[64] = 0;
 }
 
-cell_t RSAUtilVerify(IPluginContext *pContext, const cell_t *params)
+cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 {
-	char *data;
-	size_t len;
-	char *pubKey, *inFile, *inSig;
+	char *pubKey, *inHash, *inSig;
 
-	// Output buffer
-	pContext->LocalToString(params[1], &data);
-	// Buffer max size
-	len = params[2];
 	// Public key file path
-	pContext->LocalToString(params[3], &pubKey);
-	// Input data file path
-	pContext->LocalToString(params[4], &inFile);
+	pContext->LocalToString(params[1], &pubKey);
+	// Input hash
+	pContext->LocalToString(params[2], &inHash);
 	// Input signature file path (encrypted)
-	pContext->LocalToString(params[5], &inSig);
+	pContext->LocalToString(params[3], &inSig);
 
-	// SHA256 hash result of inFile
-	unsigned char hash[65];
+	FILE *fpPubKey = fopen(pubKey, "rt");
+
+	RSA *rsa_pub = PEM_read_RSA_PUBKEY(fpPubKey, NULL, NULL, NULL);
 
 	return 0;
 }
 
-cell_t DgstSHA256(IPluginContext *pContext, const cell_t *params)
+cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 {
-	char *data;
-	char *inFile;
+	char *path;
 
-	// Get output string
-	pContext->LocalToString(params[1], &data);
 	// Get input file to calculate
-	pContext->LocalToString(params[3], &inFile);
+	pContext->LocalToString(params[3], &path);
 
 	char hash[65];
-	calc_sha256(data, hash);
+	if(calc_sha256(path, hash) == -1)
+		return -1;
 
 	pContext->StringToLocalUTF8(params[1], params[2], hash, NULL);
 
@@ -126,7 +120,7 @@ cell_t DgstSHA256(IPluginContext *pContext, const cell_t *params)
 
 const sp_nativeinfo_t sourcesig_natives[] = 
 {
-	{"SourceSig_Verify",			RSAUtilVerify},
-	{"SourceSig_GetSHA256",			DgstSHA256},
+	{"SourceSig_Verify",			rsautl_verify},
+	{"SourceSig_GetSHA256",			dgst_sha256},
 	{NULL,							NULL},
 };
