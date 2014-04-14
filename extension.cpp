@@ -123,6 +123,14 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	size_t lenSig = ftell(fpSigFile);
 	fseek(fpSigFile, 0L, SEEK_SET);
 
+	// Signature size is suspiciously high, cancel process
+	if(lenSig > 1024)
+	{
+		fclose(fpPubKey);
+		fclose(fpSigFile);
+		return -2;
+	}
+
 	// Read content into memory
 	unsigned char *signature = (unsigned char*)malloc(lenSig);
 	fread(signature, sizeof(unsigned char), lenSig, fpSigFile);
