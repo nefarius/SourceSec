@@ -40,7 +40,7 @@
 /* Basic information exposed publicly */
 #define SMEXT_CONF_NAME			"SourceSig Extension"
 #define SMEXT_CONF_DESCRIPTION	"Enables encrypted signature validation checks using OpenSSL"
-#define SMEXT_CONF_VERSION		"0.0.0.0"
+#define SMEXT_CONF_VERSION		"0.0.0.1"
 #define SMEXT_CONF_AUTHOR		"Nefarius"
 #define SMEXT_CONF_URL			"http://nefarius.at/"
 #define SMEXT_CONF_LOGTAG		"SOURCESIG"
