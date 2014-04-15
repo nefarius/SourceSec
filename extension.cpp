@@ -45,6 +45,28 @@ void SourceSec::SDK_OnAllLoaded()
 	g_pShareSys->AddNatives(myself, sourcesec_natives);
 }
 
+void SourceSec::OnPluginCreated( IPlugin *plugin )
+{
+	smutils->LogMessage(myself, 
+		"Plugin load requested: %s", plugin->GetFilename());
+
+	// Get plugin signature path (plugin.smx.sig)
+	char sigFile[PLATFORM_MAX_PATH];
+	smutils->BuildPath(Path_SM, sigFile, PLATFORM_MAX_PATH,
+		"plugins/%s.sig", plugin->GetFilename());
+	smutils->LogMessage(myself, 
+		"Searching for signature file: %s", sigFile);
+
+	// Get authors public key
+	char pubKey[PLATFORM_MAX_PATH];
+	smutils->BuildPath(Path_SM, pubKey, PLATFORM_MAX_PATH,
+		"data/rsa/%s.pub", plugin->GetPublicInfo()->author);
+	smutils->LogMessage(myself, 
+		"Searching for public key file: %s", pubKey);
+
+
+}
+
 // http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
 // Calculates SHA256 of given file
 int calc_sha256(char* path, unsigned char hash[SHA256_DIGEST_LENGTH])
