@@ -124,6 +124,7 @@ public:
 
 void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65]);
 int calc_sha256(const char* path, unsigned char hash[SHA256_DIGEST_LENGTH]);
+int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig);
 extern const sp_nativeinfo_t sourcesec_natives[];
 
 enum SourceSec_Status

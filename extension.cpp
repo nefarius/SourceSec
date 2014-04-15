@@ -54,7 +54,8 @@ void SourceSec::OnPluginCreated( IPlugin *plugin )
 		"plugins/%s", plugin->GetFilename());
 
 	smutils->LogMessage(myself, 
-		"Plugin load requested: %s", plugin->GetFilename());
+		"Plugin load requested: %s", 
+		plugin->GetFilename());
 
 	// Get plugin signature path (plugin.smx.sig)
 	char sigFile[PLATFORM_MAX_PATH];
@@ -83,6 +84,7 @@ void SourceSec::OnPluginCreated( IPlugin *plugin )
 		smutils->LogMessage(myself, 
 			"Plugin %s didn't pass the integrity check",
 			plugin->GetFilename());
+		plugin->SetPauseState(true);
 		break;
 	case SourceSec_PubKeyNotFound:
 		smutils->LogMessage(myself, 
@@ -92,17 +94,17 @@ void SourceSec::OnPluginCreated( IPlugin *plugin )
 	case SourceSec_SigNotFound:
 		smutils->LogMessage(myself, 
 			"Signature file %s couldn't be opened",
-			pubKey);
+			sigFile);
 		break;
 	case SourceSec_SigTooBig:
 		smutils->LogMessage(myself, 
 			"Signature file %s exceeded maximum allowed size",
-			pubKey);
+			sigFile);
 		break;
 	case SourceSec_SigIncomplete:
 		smutils->LogMessage(myself, 
 			"Signature file %s wasn't loaded completely",
-			pubKey);
+			sigFile);
 		break;
 	}
 }
