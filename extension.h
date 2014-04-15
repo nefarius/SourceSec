@@ -126,4 +126,14 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 int calc_sha256(const char* path, unsigned char hash[SHA256_DIGEST_LENGTH]);
 extern const sp_nativeinfo_t sourcesec_natives[];
 
+enum SourceSec_Status
+{
+	SourceSec_ValidationOk = 1,
+	SourceSec_ValidationFail = 0,
+	SourceSec_PubKeyNotFound = -1,
+	SourceSec_SigNotFound = -2,
+	SourceSec_SigTooBig = -3,
+	SourceSec_SigIncomplete = -4
+};
+
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_

@@ -43,10 +43,16 @@ SMEXT_LINK(&g_sourcesec);
 void SourceSec::SDK_OnAllLoaded()
 {
 	g_pShareSys->AddNatives(myself, sourcesec_natives);
+	plsys->AddPluginsListener(&g_sourcesec);
 }
 
 void SourceSec::OnPluginCreated( IPlugin *plugin )
 {
+	// Get plugin absolute path
+	char inFile[PLATFORM_MAX_PATH];
+	smutils->BuildPath(Path_SM, inFile, PLATFORM_MAX_PATH,
+		"plugins/%s", plugin->GetFilename());
+
 	smutils->LogMessage(myself, 
 		"Plugin load requested: %s", plugin->GetFilename());
 
@@ -64,7 +70,41 @@ void SourceSec::OnPluginCreated( IPlugin *plugin )
 	smutils->LogMessage(myself, 
 		"Searching for public key file: %s", pubKey);
 
+	int ret = rsautl_verify(pubKey, inFile, sigFile);
 
+	switch (ret)
+	{
+	case SourceSec_ValidationOk:
+		smutils->LogMessage(myself, 
+			"Plugin %s passed validation",
+			plugin->GetFilename());
+		break;
+	case SourceSec_ValidationFail:
+		smutils->LogMessage(myself, 
+			"Plugin %s didn't pass the integrity check",
+			plugin->GetFilename());
+		break;
+	case SourceSec_PubKeyNotFound:
+		smutils->LogMessage(myself, 
+			"Public key %s couldn't be opened",
+			pubKey);
+		break;
+	case SourceSec_SigNotFound:
+		smutils->LogMessage(myself, 
+			"Signature file %s couldn't be opened",
+			pubKey);
+		break;
+	case SourceSec_SigTooBig:
+		smutils->LogMessage(myself, 
+			"Signature file %s exceeded maximum allowed size",
+			pubKey);
+		break;
+	case SourceSec_SigIncomplete:
+		smutils->LogMessage(myself, 
+			"Signature file %s wasn't loaded completely",
+			pubKey);
+		break;
+	}
 }
 
 // http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
@@ -106,7 +146,7 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 
 int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig)
 {
-	int ret = -1;
+	int ret = SourceSec_PubKeyNotFound;
 
 	FILE *fpPubKey = fopen(pubKey, "rt");
 	if(!fpPubKey)
@@ -120,7 +160,7 @@ int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig)
 	if(!fpSigFile)
 	{
 		fclose(fpPubKey);
-		return ret;
+		return SourceSec_SigNotFound;
 	}
 
 	// Calculate hash of input file
@@ -137,7 +177,7 @@ int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig)
 	{
 		fclose(fpPubKey);
 		fclose(fpSigFile);
-		return -2;
+		return SourceSec_SigTooBig;
 	}
 
 	// Read content into memory
@@ -149,7 +189,7 @@ int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig)
 	{
 		fclose(fpPubKey);
 		fclose(fpSigFile);
-		return -3;
+		return SourceSec_SigIncomplete;
 	}
 
 	// Verify signature integrity
