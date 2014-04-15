@@ -123,7 +123,7 @@ public:
 };
 
 void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65]);
-int calc_sha256(char* path, unsigned char hash[SHA256_DIGEST_LENGTH]);
+int calc_sha256(const char* path, unsigned char hash[SHA256_DIGEST_LENGTH]);
 extern const sp_nativeinfo_t sourcesec_natives[];
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_

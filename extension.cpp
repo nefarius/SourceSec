@@ -69,7 +69,7 @@ void SourceSec::OnPluginCreated( IPlugin *plugin )
 
 // http://stackoverflow.com/questions/7853156/calculate-sha256-of-a-file-using-openssl-libcrypto-in-c
 // Calculates SHA256 of given file
-int calc_sha256(char* path, unsigned char hash[SHA256_DIGEST_LENGTH])
+int calc_sha256(const char* path, unsigned char hash[SHA256_DIGEST_LENGTH])
 {
 	FILE* file = fopen(path, "rb");
 	if(!file) return -1;
@@ -104,22 +104,11 @@ void sha256_hash_string(unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuf
 	outputBuffer[64] = 0;
 }
 
-cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
+int rsautl_verify(const char *pubKey, const char *inFile, const char *inSig)
 {
-	char *pubKey, *inFile, *sigFile;
 	int ret = -1;
-	char buffer[PLATFORM_MAX_PATH];
 
-	// Public key file path
-	pContext->LocalToString(params[1], &pubKey);
-	// Input hash
-	pContext->LocalToString(params[2], &inFile);
-	// Input signature file path (encrypted)
-	pContext->LocalToString(params[3], &sigFile);
-
-	// Try to open supplied public key file
-	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, pubKey);
-	FILE *fpPubKey = fopen(buffer, "rt");
+	FILE *fpPubKey = fopen(pubKey, "rt");
 	if(!fpPubKey)
 		return ret;
 
@@ -127,8 +116,7 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	RSA *rsa_pub = PEM_read_RSA_PUBKEY(fpPubKey, NULL, NULL, NULL);
 
 	// Try to open signature file
-	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, sigFile);
-	FILE *fpSigFile = fopen(buffer, "rb");
+	FILE *fpSigFile = fopen(inSig, "rb");
 	if(!fpSigFile)
 	{
 		fclose(fpPubKey);
@@ -137,8 +125,7 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 
 	// Calculate hash of input file
 	unsigned char hash[SHA256_DIGEST_LENGTH];
-	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, inFile);
-	calc_sha256(buffer, hash);
+	calc_sha256(inFile, hash);
 
 	// Get size of signature file
 	fseek(fpSigFile, 0L, SEEK_END);
@@ -177,6 +164,28 @@ cell_t rsautl_verify(IPluginContext *pContext, const cell_t *params)
 	return ret;
 }
 
+cell_t sm_rsautl_verify(IPluginContext *pContext, const cell_t *params)
+{
+	char *pubKey, *inFile, *sigFile;
+	int ret = -1;
+	char pubKeyPath[PLATFORM_MAX_PATH];
+	char inFilePath[PLATFORM_MAX_PATH];
+	char sigFilePath[PLATFORM_MAX_PATH];
+
+	// Public key file path
+	pContext->LocalToString(params[1], &pubKey);
+	// Input hash
+	pContext->LocalToString(params[2], &inFile);
+	// Input signature file path (encrypted)
+	pContext->LocalToString(params[3], &sigFile);
+
+	smutils->BuildPath(Path_Game, pubKeyPath, PLATFORM_MAX_PATH, pubKey);
+	smutils->BuildPath(Path_Game, inFilePath, PLATFORM_MAX_PATH, inFile);
+	smutils->BuildPath(Path_Game, sigFilePath, PLATFORM_MAX_PATH, sigFile);
+
+	return rsautl_verify(pubKeyPath, inFilePath, sigFilePath);
+}
+
 cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 {
 	char *path;
@@ -188,7 +197,7 @@ cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 	unsigned char hash[SHA256_DIGEST_LENGTH];
 	char output[65];
 	// Open file and calculate hash
-	smutils->BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, path);
+	smutils->BuildPath(Path_Game, buffer, PLATFORM_MAX_PATH, path);
 	if(calc_sha256(buffer, hash) == -1)
 		return -1;
 
@@ -203,7 +212,7 @@ cell_t dgst_sha256(IPluginContext *pContext, const cell_t *params)
 
 const sp_nativeinfo_t sourcesec_natives[] = 
 {
-	{"SourceSec_Verify",			rsautl_verify},
+	{"SourceSec_Verify",			sm_rsautl_verify},
 	{"SourceSec_GetSHA256",			dgst_sha256},
 	{NULL,							NULL},
 };
